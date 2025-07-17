@@ -3,6 +3,8 @@
 namespace App\Core\User\Domain;
 
 use App\Common\EventManager\EventsCollectorTrait;
+use App\Core\User\Domain\Event\UserCreatedEvent;
+use App\Core\User\Domain\Status\UserStatus;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,14 +27,27 @@ class User
      */
     private string $email;
 
+    /**
+     * @ORM\Column(type="string", length=8, nullable=false, enumType="\App\Core\User\Domain\Status\UserStatus")
+     */
+    private UserStatus $status;
+
     public function __construct(string $email)
     {
         $this->id = null;
         $this->email = $email;
+        $this->status = UserStatus::INACTIVE;
+
+        $this->record(new UserCreatedEvent($this));
     }
 
     public function getEmail(): string
     {
         return $this->email;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status == UserStatus::ACTIVE;
     }
 }
