@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\User\Application\Command\CreateUser;
 
 use App\Core\User\Application\Exception\InvalidEmailException;
+use App\Core\User\Application\Exception\UserAlreadyExistsException;
 use App\Core\User\Domain\Repository\UserRepositoryInterface;
 use App\Core\User\Domain\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +16,7 @@ class CreateUserCommandHandler
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface  $entityManager,
     )
     {
     }
@@ -24,12 +25,23 @@ class CreateUserCommandHandler
         CreateUserCommand $command
     ): void
     {
-        $this->assertEmailValid($command->email);
+        $email = $command->email;
+        $this->assertEmailValid($email);
+
+        $exists = $this
+            ->userRepository
+            ->existsByEmail($email);
+
+        if ($exists) {
+            throw new UserAlreadyExistsException(
+                'Użytkownik z podanym adresem email widnieje w bazie!'
+            );
+        }
 
         $this
             ->userRepository
             ->store(
-                new User($command->email)
+                new User($email)
             );
 
         $this
@@ -39,7 +51,7 @@ class CreateUserCommandHandler
 
     private function assertEmailValid(string $emailAddress): void
     {
-        if(!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidEmailException('Nieprawidłowy adres e-mail!');
         }
     }
