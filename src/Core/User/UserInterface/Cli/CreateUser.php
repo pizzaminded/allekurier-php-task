@@ -34,11 +34,6 @@ class CreateUser extends Command
         $this->addArgument('email', InputArgument::REQUIRED);
     }
 
-    protected function initialize(InputInterface $input, OutputInterface $output): void
-    {
-        $this->io = new SymfonyStyle($input, $output);
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         /** @var string $email */
