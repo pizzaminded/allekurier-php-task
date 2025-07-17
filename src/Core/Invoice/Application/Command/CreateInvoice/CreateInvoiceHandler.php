@@ -2,6 +2,7 @@
 
 namespace App\Core\Invoice\Application\Command\CreateInvoice;
 
+use App\Core\Invoice\Application\Exception\InvoiceCreationException;
 use App\Core\Invoice\Domain\Invoice;
 use App\Core\Invoice\Domain\Repository\InvoiceRepositoryInterface;
 use App\Core\User\Domain\Repository\UserRepositoryInterface;
@@ -17,8 +18,16 @@ class CreateInvoiceHandler
 
     public function __invoke(CreateInvoiceCommand $command): void
     {
+        $user = $this
+            ->userRepository
+            ->getByEmail($command->email);
+
+        if(!$user->isActive()) {
+            throw new InvoiceCreationException('Użytkownik nie jest aktywny!');
+        }
+
         $this->invoiceRepository->save(new Invoice(
-            $this->userRepository->getByEmail($command->email),
+            $user,
             $command->amount
         ));
 
