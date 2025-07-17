@@ -15,7 +15,10 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 class DoctrineUserRepository extends ServiceEntityRepository implements UserRepositoryInterface
 {
 
-    public function __construct(ManagerRegistry $registry, EventDispatcherInterface $dispatcher)
+    public function __construct(
+        ManagerRegistry $registry,
+        private EventDispatcherInterface $eventDispatcher
+    )
     {
         parent::__construct($registry, User::class);
     }
