@@ -7,17 +7,17 @@ namespace App\Core\User\Infrastructure\Persistance;
 use App\Core\User\Domain\Exception\UserNotFoundException;
 use App\Core\User\Domain\Repository\UserRepositoryInterface;
 use App\Core\User\Domain\User;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-class DoctrineUserRepository implements UserRepositoryInterface
+class DoctrineUserRepository extends ServiceEntityRepository implements UserRepositoryInterface
 {
-    public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly EventDispatcherInterface $eventDispatcher
-    )
+
+    public function __construct(ManagerRegistry $registry, EventDispatcherInterface $dispatcher)
     {
+        parent::__construct($registry, User::class);
     }
 
     /**
@@ -25,9 +25,7 @@ class DoctrineUserRepository implements UserRepositoryInterface
      */
     public function getByEmail(string $email): User
     {
-        $user = $this->entityManager->createQueryBuilder()
-            ->select('u')
-            ->from(User::class, 'u')
+        $user = $this->createQueryBuilder('u')
             ->where('u.email = :user_email')
             ->setParameter(':user_email', $email)
             ->setMaxResults(1)
@@ -44,7 +42,7 @@ class DoctrineUserRepository implements UserRepositoryInterface
 
     public function store(User $user): void
     {
-        $this->entityManager->persist($user);
+        $this->_em->persist($user);
 
         foreach ($user->pullEvents() as $event) {
             $this
