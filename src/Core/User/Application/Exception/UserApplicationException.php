@@ -9,7 +9,7 @@ use DomainException;
 /**
  * Parent class for every exception in user application layer.
  */
-class UserApplicationException extends DomainException
+abstract class UserApplicationException extends DomainException
 {
 
 }
