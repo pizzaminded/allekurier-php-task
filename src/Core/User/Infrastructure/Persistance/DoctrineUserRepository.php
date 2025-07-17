@@ -6,6 +6,7 @@ namespace App\Core\User\Infrastructure\Persistance;
 
 use App\Core\User\Domain\Exception\UserNotFoundException;
 use App\Core\User\Domain\Repository\UserRepositoryInterface;
+use App\Core\User\Domain\Status\UserStatus;
 use App\Core\User\Domain\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -16,7 +17,7 @@ class DoctrineUserRepository extends ServiceEntityRepository implements UserRepo
 {
 
     public function __construct(
-        ManagerRegistry $registry,
+        ManagerRegistry                  $registry,
         private EventDispatcherInterface $eventDispatcher
     )
     {
@@ -57,5 +58,12 @@ class DoctrineUserRepository extends ServiceEntityRepository implements UserRepo
     public function existsByEmail(string $email): bool
     {
         return $this->count(['email' => $email]) > 0;
+    }
+
+    public function getUsersByStatus(UserStatus $status): array
+    {
+        return $this->findBy([
+            'status' => $status,
+        ]);
     }
 }
