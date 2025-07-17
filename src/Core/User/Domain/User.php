@@ -36,7 +36,7 @@ class User
     {
         $this->id = null;
         $this->email = $email;
-        $this->status = UserStatus::ACTIVE;
+        $this->status = UserStatus::INACTIVE;
 
         $this->record(new UserCreatedEvent($this));
     }
