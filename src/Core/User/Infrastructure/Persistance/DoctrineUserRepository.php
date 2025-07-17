@@ -50,4 +50,9 @@ class DoctrineUserRepository extends ServiceEntityRepository implements UserRepo
                 ->dispatch($event);
         }
     }
+
+    public function existsByEmail(string $email): bool
+    {
+        return $this->count(['email' => $email]) > 0;
+    }
 }

@@ -12,5 +12,7 @@ interface UserRepositoryInterface
      */
     public function getByEmail(string $email): User;
 
+    public function existsByEmail(string $email): bool;
+
     public function store(User $user): void;
 }
